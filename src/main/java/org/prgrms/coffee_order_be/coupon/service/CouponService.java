@@ -13,6 +13,8 @@ import org.prgrms.coffee_order_be.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.prgrms.coffee_order_be.common.exception.ExceptionCode.NOT_FOUND_COUPON;
 
 @Service
@@ -43,5 +45,9 @@ public class CouponService {
         couponMappingRepository.save(couponMapping);
 
         return CouponMappingResponseDto.from(couponMapping);
+    }
+
+    public List<Coupon> getCoupons(String email){
+        return couponRepository.findValidCouponsByUserEmail(email);
     }
 }

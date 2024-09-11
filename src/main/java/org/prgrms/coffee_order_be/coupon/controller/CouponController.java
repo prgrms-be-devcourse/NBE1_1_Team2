@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/coupon")
@@ -29,5 +31,11 @@ public class CouponController {
         CouponMappingResponseDto responseDto = couponService.issueCoupon(couponCode, email);
         return ResponseEntity.ok().body(responseDto);
 
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Coupon>> getCoupons(@RequestParam("email") String email){ // 추후 JWT 로 수정 예정
+        List<Coupon> response = couponService.getCoupons(email);
+        return ResponseEntity.ok().body(response);
     }
 }

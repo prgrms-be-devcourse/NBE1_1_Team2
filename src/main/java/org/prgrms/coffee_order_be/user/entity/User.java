@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
@@ -26,9 +27,9 @@ public class User {
     @Column(name = "password", nullable = false, length = 200)
     private String password;
 
-    @Column(name = "address", nullable = false, length = 200)
-    private String address;
-
-    @Column(name = "postcode", nullable = false, length = 200)
-    private String postcode;
+    @Builder
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 }

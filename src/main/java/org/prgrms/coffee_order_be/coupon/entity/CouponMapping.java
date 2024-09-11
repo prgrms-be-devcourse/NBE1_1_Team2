@@ -41,4 +41,12 @@ public class CouponMapping {
         this.coupon = coupon;
         this.used = false;
     }
+
+    public void useCoupon(){
+        this.used = true;
+    }
+
+    public void cancelCoupon(){
+        this.used = false;
+    }
 }

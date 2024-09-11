@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.prgrms.coffee_order_be.coupon.dto.request.CouponCreateDto;
 import org.prgrms.coffee_order_be.coupon.dto.response.CouponMappingResponseDto;
+import org.prgrms.coffee_order_be.coupon.dto.response.CouponResponseDto;
 import org.prgrms.coffee_order_be.coupon.entity.Coupon;
 import org.prgrms.coffee_order_be.coupon.service.CouponService;
 import org.springframework.http.HttpStatus;
@@ -51,4 +52,19 @@ public class CouponController {
         List<Coupon> response = couponService.getIssuedCoupons(email);
         return ResponseEntity.ok().body(response);
     }
+
+    @PutMapping("/use")
+    public ResponseEntity<CouponResponseDto> useCoupon(@RequestParam("uuid") UUID couponId,
+                                                       @RequestParam("email") String email){ // 추후 JWT 로 수정 예정
+        CouponResponseDto response = couponService.useCoupon(couponId, email);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PutMapping("/cancel")
+    public ResponseEntity<CouponResponseDto> cancelCoupon(@RequestParam("uuid") UUID couponId,
+                                                          @RequestParam("email") String email){ // 추후 JWT 로 수정 예정
+        CouponResponseDto response = couponService.cancelCoupon(couponId, email);
+        return ResponseEntity.ok().body(response);
+    }
 }
+

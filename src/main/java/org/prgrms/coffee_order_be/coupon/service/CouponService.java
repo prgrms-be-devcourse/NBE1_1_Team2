@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.prgrms.coffee_order_be.common.exception.BusinessLogicException;
 import org.prgrms.coffee_order_be.coupon.dto.request.CouponCreateDto;
 import org.prgrms.coffee_order_be.coupon.dto.response.CouponMappingResponseDto;
+import org.prgrms.coffee_order_be.coupon.dto.response.CouponResponseDto;
 import org.prgrms.coffee_order_be.coupon.entity.Coupon;
 import org.prgrms.coffee_order_be.coupon.entity.CouponMapping;
 import org.prgrms.coffee_order_be.coupon.repository.CouponMappingRepository;
@@ -16,8 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-import static org.prgrms.coffee_order_be.common.exception.ExceptionCode.EXIST_COUPON;
-import static org.prgrms.coffee_order_be.common.exception.ExceptionCode.NOT_FOUND_COUPON;
+import static org.prgrms.coffee_order_be.common.exception.ExceptionCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -64,6 +64,33 @@ public class CouponService {
 
     public List<Coupon> getIssuedCoupons(String email){
         return couponRepository.findValidCouponsByUserEmail(email);
+    }
+
+    @Transactional
+    public CouponResponseDto useCoupon(UUID couponId, String email){
+        CouponMapping couponMapping = couponMappingRepository.findByUserEmailAndCoupon_CouponId(email, couponId)
+                .orElseThrow(() -> new BusinessLogicException(NOT_FOUND_COUPON));
+
+        if(couponMapping.isUsed())
+            throw new BusinessLogicException(ALREADY_USED_COUPON);
+
+        couponMapping.useCoupon();
+
+        return CouponResponseDto.from(couponMapping);
+    }
+
+
+    @Transactional
+    public CouponResponseDto cancelCoupon(UUID couponId, String email){
+        CouponMapping couponMapping = couponMappingRepository.findByUserEmailAndCoupon_CouponId(email, couponId)
+                .orElseThrow(() -> new BusinessLogicException(NOT_FOUND_COUPON));
+
+        if(!couponMapping.isUsed())
+            throw new BusinessLogicException(ALREADY_CANCELED_COUPON);
+        
+        couponMapping.cancelCoupon();
+
+        return CouponResponseDto.from(couponMapping);
     }
 
 }

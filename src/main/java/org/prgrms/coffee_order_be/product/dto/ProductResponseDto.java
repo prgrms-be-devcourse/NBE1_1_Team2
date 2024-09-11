@@ -5,7 +5,7 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.prgrms.coffee_order_be.product.entity.Product;
+import org.prgrms.coffee_order_be.product.entity.ProductEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -30,7 +30,7 @@ public class ProductResponseDto {
     this.updatedAt = updatedAt;
   }
 
-  public static ProductResponseDto from(Product product) {
+  public static ProductResponseDto from(ProductEntity product) {
     return new ProductResponseDto(
         product.getProductId(),
         product.getProductName(),

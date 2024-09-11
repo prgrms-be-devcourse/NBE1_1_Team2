@@ -2,10 +2,12 @@ package org.prgrms.coffee_order_be.product.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.prgrms.coffee_order_be.product.entity.Product;
+import org.prgrms.coffee_order_be.product.entity.ProductEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,12 +29,15 @@ public class ProductCreateDto {
     this.description = description;
   }
 
-  public Product toEntity() {
-    return Product.builder()
+  public ProductEntity toEntity() {
+    return ProductEntity.builder()
+        .productId(UUID.randomUUID())
         .productName(this.getProductName())
         .category(this.getCategory())
         .price(this.getPrice())
         .description(this.getDescription())
+        .creatdAt(LocalDateTime.now())
+        .updatedAt(LocalDateTime.now())
         .build();
   }
 }

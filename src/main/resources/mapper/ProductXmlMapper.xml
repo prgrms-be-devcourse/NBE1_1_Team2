@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.prgrms.coffee_order_be.product.repository.ProductMapper">
+
+  <insert id="save" parameterType="products">
+    INSERT INTO products (product_id, product_name, category, price, description, created_at, updated_at)
+    VALUES (UUID_TO_BIN(#{productId}), #{productName}, #{category}, #{price}, #{description}, #{createdAt}, #{updatedAt});
+  </insert>
+
+  <update id="update" parameterType="products">
+    UPDATE products
+    SET price=#{price},
+        description=#{description},
+        updated_at=#{updatedAt}
+    WHERE product_id = UUID_TO_BIN(#{productId})
+  </update>
+
+  <select id="findById" resultType="products">
+    SELECT product_id, product_name, category, price, description, created_at, updated_at
+    FROM products
+    WHERE product_id = UUID_TO_BIN(#{productId})
+  </select>
+
+  <select id="findByProductName" resultType="products">
+    SELECT product_id, product_name, category, price, description, created_at, updated_at
+    FROM products
+    WHERE product_name = #{productName};
+  </select>
+
+  <select id="findAll" resultType="products">
+    SELECT product_id, product_name, category, price, description, created_at, updated_at
+    FROM products;
+  </select>
+
+  <delete id="delete" parameterType="products">
+    DELETE FROM products
+    WHERE product_id = UUID_TO_BIN(#{productId})
+  </delete>
+
+</mapper>

@@ -14,11 +14,12 @@ import org.prgrms.coffee_order_be.order.dto.OrderCreateDto;
 import org.prgrms.coffee_order_be.order.dto.OrderItemCreateDto;
 import org.prgrms.coffee_order_be.order.dto.OrderResponseDto;
 import org.prgrms.coffee_order_be.order.dto.OrderUpdateDto;
-import org.prgrms.coffee_order_be.order.entity.Order;
-import org.prgrms.coffee_order_be.order.entity.OrderItem;
-import org.prgrms.coffee_order_be.order.repository.OrderRepository;
-import org.prgrms.coffee_order_be.product.entity.Product;
-import org.prgrms.coffee_order_be.product.repository.ProductRepository;
+import org.prgrms.coffee_order_be.order.entity.OrderEntity;
+import org.prgrms.coffee_order_be.order.entity.OrderItemEntity;
+import org.prgrms.coffee_order_be.order.repository.OrderItemMapper;
+import org.prgrms.coffee_order_be.order.repository.OrderMapper;
+import org.prgrms.coffee_order_be.product.entity.ProductEntity;
+import org.prgrms.coffee_order_be.product.repository.ProductMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,72 +28,81 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class OrderService {
 
-  private final OrderRepository orderRepository;
-  private final ProductRepository productRepository;
+  private final OrderMapper orderMapper;
+  private final OrderItemMapper orderItemMapper;
+  private final ProductMapper productMapper;
 
   @Transactional
   public OrderResponseDto createOrder(OrderCreateDto createDto) {
 
-    List<OrderItem> orderItems = convertToOrderItems(createDto.getOrderItems());
+    List<OrderItemEntity> orderItems = convertToOrderItems(createDto.getOrderItems());
 
-    Order order = createDto.toEntity(orderItems);
-    orderRepository.save(order);
+    OrderEntity order = createDto.toEntity(orderItems);
+
+    orderMapper.save(order);
+    orderItems.forEach(
+        orderItemMapper::save
+    );
 
     return OrderResponseDto.from(order);
   }
 
   public List<OrderResponseDto> getOrders() {
-    List<Order> orders = orderRepository.findAll();
+    List<OrderEntity> orders = orderMapper.findAll();
 
     return orders.stream().map(OrderResponseDto::from).collect(Collectors.toList());
   }
 
   public List<OrderResponseDto> getOrdersByEmail(String email) {
-    List<Order> orders = orderRepository.findByEmail(email);
+    List<OrderEntity> orders = orderMapper.findByEmail(email);
     return orders.stream().map(OrderResponseDto::from).collect(Collectors.toList());
   }
 
   public OrderResponseDto getOrder(UUID orderId) {
-    Order findOrder = getOrderById(orderId);
+    OrderEntity findOrder = getOrderById(orderId);
 
     return OrderResponseDto.from(findOrder);
   }
 
   @Transactional
   public OrderResponseDto updateOrder(UUID orderId, OrderUpdateDto updateDto) {
-    Order findOrder = getOrderById(orderId);
+    OrderEntity findOrder = getOrderById(orderId);
 
-    if (!findOrder.isUpdatable())
+    if (!findOrder.isUpdatable()) {
       throw new BusinessLogicException(CANNOT_UPDATE_ORDER);
+    }
 
     findOrder.updateFromDto(updateDto);
+    orderMapper.update(findOrder);
 
     return OrderResponseDto.from(findOrder);
   }
 
+  @Transactional
   public void deleteOrder(UUID orderId) {
-    Order findOrder = getOrderById(orderId);
+    OrderEntity findOrder = getOrderById(orderId);
 
-    if (!findOrder.isDeletable())
+    if (!findOrder.isDeletable()) {
       throw new BusinessLogicException(CANNOT_DELETE_ORDER);
+    }
 
-    orderRepository.delete(findOrder);
+    orderMapper.delete(findOrder);
   }
 
-  private Order getOrderById(UUID orderId) {
-    return orderRepository.findById(orderId).orElseThrow(
+  private OrderEntity getOrderById(UUID orderId) {
+    return orderMapper.findById(orderId).orElseThrow(
         () -> new BusinessLogicException(NOT_FOUND_ORDER)
     );
   }
 
-  private List<OrderItem> convertToOrderItems(List<OrderItemCreateDto> orderItemsDto) {
+  private List<OrderItemEntity> convertToOrderItems(List<OrderItemCreateDto> orderItemsDto) {
     return orderItemsDto.stream()
         .map(this::mapToOrderItem)
         .collect(Collectors.toList());
   }
 
-  private OrderItem mapToOrderItem(OrderItemCreateDto dto) {
-    Product findProduct = productRepository.findById(dto.getProductId())
+  private OrderItemEntity mapToOrderItem(OrderItemCreateDto dto) {
+    ProductEntity findProduct = productMapper.findById(dto.getProductId())
         .orElseThrow(() -> new BusinessLogicException(ExceptionCode.NOT_FOUND_PRODUCT));
 
     return dto.toEntity(findProduct);

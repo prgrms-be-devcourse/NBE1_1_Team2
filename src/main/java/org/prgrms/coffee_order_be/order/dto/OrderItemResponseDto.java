@@ -2,7 +2,7 @@ package org.prgrms.coffee_order_be.order.dto;
 
 import java.util.UUID;
 import lombok.Getter;
-import org.prgrms.coffee_order_be.order.entity.OrderItem;
+import org.prgrms.coffee_order_be.order.entity.OrderItemEntity;
 
 @Getter
 public class OrderItemResponseDto {
@@ -21,7 +21,7 @@ public class OrderItemResponseDto {
     this.quantity = quantity;
   }
 
-  public static OrderItemResponseDto from(OrderItem orderItem) {
+  public static OrderItemResponseDto from(OrderItemEntity orderItem) {
     return new OrderItemResponseDto(
         orderItem.getProduct().getProductId(),
         orderItem.getProduct().getProductName(),

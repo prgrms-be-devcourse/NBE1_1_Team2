@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.Getter;
-import org.prgrms.coffee_order_be.order.entity.Order;
+import org.prgrms.coffee_order_be.order.entity.OrderEntity;
 import org.prgrms.coffee_order_be.order.entity.OrderStatus;
 
 @Getter
@@ -29,7 +29,7 @@ public class OrderResponseDto {
     this.orderItems = orderItems;
   }
 
-  public static OrderResponseDto from(Order order) {
+  public static OrderResponseDto from(OrderEntity order) {
     return new OrderResponseDto(
         order.getOrderId(),
         order.getEmail(),

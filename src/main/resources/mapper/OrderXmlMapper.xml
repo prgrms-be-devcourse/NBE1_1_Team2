@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.prgrms.coffee_order_be.order.repository.OrderMapper">
+
+  <!-- 주문을 저장하는 SQL 쿼리 -->
+  <insert id="save" parameterType="orders">
+    INSERT INTO orders (order_id, email, address, postcode, order_status, created_at, updated_at)
+    VALUES (UUID_TO_BIN(#{orderId}), #{email}, #{address}, #{postcode}, #{orderStatus}, #{createdAt}, #{updatedAt});
+  </insert>
+
+  <!-- 주문 ID로 주문과 관련된 아이템을 찾는 SQL 쿼리 -->
+  <select id="findById" resultMap="orderResultMap">
+    SELECT o.order_id, o.email, o.address, o.postcode, o.order_status, o.created_at, o.updated_at,
+           i.seq, i.product_id, i.category, i.price, i.quantity, i.created_at AS item_created_at, i.updated_at AS item_updated_at,
+           p.product_name, p.description, p.created_at AS product_created_at, p.updated_at AS product_updated_at
+    FROM orders o
+           LEFT JOIN order_items i ON o.order_id = i.order_id
+           LEFT JOIN products p ON i.product_id = p.product_id
+    WHERE o.order_id = UUID_TO_BIN(#{orderId});
+  </select>
+
+  <!-- 이메일로 주문과 관련된 아이템을 찾는 SQL 쿼리 -->
+  <select id="findByEmail" resultMap="orderResultMap">
+    SELECT o.order_id, o.email, o.address, o.postcode, o.order_status, o.created_at, o.updated_at,
+           i.seq, i.product_id, i.category, i.price, i.quantity, i.created_at AS item_created_at, i.updated_at AS item_updated_at,
+           p.product_name, p.description, p.created_at AS product_created_at, p.updated_at AS product_updated_at
+    FROM orders o
+           LEFT JOIN order_items i ON o.order_id = i.order_id
+           LEFT JOIN products p ON i.product_id = p.product_id
+    WHERE o.email = #{email};
+  </select>
+
+  <select id="findAll" resultMap="orderResultMap">
+    SELECT o.order_id, o.email, o.address, o.postcode, o.order_status, o.created_at, o.updated_at,
+           i.seq, i.product_id, i.category, i.price, i.quantity, i.created_at AS item_created_at, i.updated_at AS item_updated_at,
+           p.product_name, p.description, p.created_at AS product_created_at, p.updated_at AS product_updated_at
+    FROM orders o
+           LEFT JOIN order_items i ON o.order_id = i.order_id
+           LEFT JOIN products p ON i.product_id = p.product_id;
+  </select>
+
+  <!-- 주문을 삭제하는 SQL 쿼리 -->
+  <delete id="delete" parameterType="orders">
+    DELETE FROM orders
+    WHERE order_id = UUID_TO_BIN(#{orderId});
+  </delete>
+
+  <!-- 주문을 업데이트하는 SQL 쿼리 -->
+  <update id="update" parameterType="orders">
+    UPDATE orders
+    SET address = #{address},
+        postcode = #{postcode},
+        updated_at = #{updatedAt}
+    WHERE order_id = UUID_TO_BIN(#{orderId});
+  </update>
+
+  <resultMap id="orderResultMap" type="orders">
+    <id property="orderId" column="order_id" />
+    <result property="email" column="email" />
+    <result property="address" column="address" />
+    <result property="postcode" column="postcode" />
+    <result property="orderStatus" column="order_status" />
+    <result property="createdAt" column="created_at" />
+    <result property="updatedAt" column="updated_at" />
+
+    <!-- OrderItemEntity 컬렉션 -->
+    <collection property="orderItems" ofType="order_items">
+      <id property="seq" column="seq" />
+      <result property="category" column="category" />
+      <result property="price" column="price" />
+      <result property="quantity" column="quantity" />
+      <result property="createdAt" column="item_created_at" />
+      <result property="updatedAt" column="item_updated_at" />
+
+      <!-- ProductEntity 관련 정보 -->
+      <association property="product" javaType="products">
+        <id property="productId" column="product_id" />
+        <result property="productName" column="product_name" />
+        <result property="category" column="category" />
+        <result property="price" column="price" />
+        <result property="description" column="description" />
+        <result property="createdAt" column="product_created_at" />
+        <result property="updatedAt" column="product_updated_at" />
+      </association>
+    </collection>
+  </resultMap>
+
+
+  <!-- 주문 상태를 특정 기간 동안 업데이트하는 SQL 쿼리 -->
+  <update id="updateOrderStatusFromDateToDate">
+    UPDATE orders
+    SET order_status = #{orderStatus}
+    SET updated_at = NOW()
+    WHERE created_at BETWEEN #{yesterday2pm} AND #{today2pm};
+  </update>
+
+</mapper>

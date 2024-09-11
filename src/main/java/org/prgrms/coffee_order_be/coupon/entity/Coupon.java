@@ -2,6 +2,7 @@ package org.prgrms.coffee_order_be.coupon.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
@@ -25,11 +26,19 @@ public class Coupon extends Timestamped{
     @Column(name = "coupon_name", nullable = false)
     private String couponName;
 
-    @Column(name = "coupon_code", nullable = false)
+    @Column(name = "coupon_code", nullable = false, unique = true)
     private String couponCode;
 
     private long discount;
 
     @Column(name = "expiration_date")
     private LocalDateTime expirationDate;
+
+    @Builder
+    public Coupon(String couponName, String couponCode, long discount, LocalDateTime expirationDate) {
+        this.couponName = couponName;
+        this.couponCode = couponCode;
+        this.discount = discount;
+        this.expirationDate = expirationDate;
+    }
 }

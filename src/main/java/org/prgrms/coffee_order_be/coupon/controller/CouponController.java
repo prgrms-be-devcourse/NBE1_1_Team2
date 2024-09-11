@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +26,18 @@ public class CouponController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping
+    public ResponseEntity<List<Coupon>> getCoupons(){
+        List<Coupon> response = couponService.getCoupons();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<?> deleteCoupon(@PathVariable("uuid") UUID uuid){
+        couponService.deleteCoupon(uuid);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/issue")
     public ResponseEntity<CouponMappingResponseDto> issueCoupon(@RequestParam("couponCode") String couponCode,
                                                                 @RequestParam("email") String email){ // 추후 JWT로 수정 예정
@@ -33,9 +46,9 @@ public class CouponController {
 
     }
 
-    @GetMapping
-    public ResponseEntity<List<Coupon>> getCoupons(@RequestParam("email") String email){ // 추후 JWT 로 수정 예정
-        List<Coupon> response = couponService.getCoupons(email);
+    @GetMapping("/issued")
+    public ResponseEntity<List<Coupon>> getIssuedCoupons(@RequestParam("email") String email){ // 추후 JWT 로 수정 예정
+        List<Coupon> response = couponService.getIssuedCoupons(email);
         return ResponseEntity.ok().body(response);
     }
 }

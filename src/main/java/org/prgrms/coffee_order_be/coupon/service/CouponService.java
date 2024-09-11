@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.prgrms.coffee_order_be.common.exception.ExceptionCode.EXIST_COUPON;
 import static org.prgrms.coffee_order_be.common.exception.ExceptionCode.NOT_FOUND_COUPON;
@@ -31,6 +32,15 @@ public class CouponService {
         couponRepository.save(coupon);
 
         return coupon;
+    }
+
+    public List<Coupon> getCoupons(){
+        return couponRepository.findAll();
+    }
+
+
+    public void deleteCoupon(UUID uuid){
+        couponRepository.deleteById(uuid);
     }
 
     @Transactional
@@ -52,7 +62,8 @@ public class CouponService {
         return CouponMappingResponseDto.from(couponMapping);
     }
 
-    public List<Coupon> getCoupons(String email){
+    public List<Coupon> getIssuedCoupons(String email){
         return couponRepository.findValidCouponsByUserEmail(email);
     }
+
 }

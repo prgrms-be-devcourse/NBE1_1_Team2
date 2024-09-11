@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- 필수 메타 태그들 -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+  <style>
+    body {
+      background: #ddd;
+    }
+
+    .card {
+      margin: auto;
+      max-width: 950px;
+      width: 90%;
+      box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      border-radius: 1rem;
+      border: transparent;
+    }
+
+    .summary {
+      background-color: #ddd;
+      border-top-right-radius: 1rem;
+      border-bottom-right-radius: 1rem;
+      padding: 4vh;
+      color: rgb(65, 65, 65);
+    }
+
+    @media (max-width: 767px) {
+      .summary {
+        border-top-right-radius: unset;
+        border-bottom-left-radius: 1rem;
+      }
+    }
+
+    .row {
+      margin: 0;
+    }
+
+    .title b {
+      font-size: 1.5rem;
+    }
+
+    .col-2,
+    .col {
+      padding: 0 1vh;
+    }
+
+    img {
+      width: 3.5rem;
+    }
+
+    hr {
+      margin-top: 1.25rem;
+    }
+
+    .products {
+      width: 100%;
+    }
+
+    .products .price, .products .action {
+      line-height: 38px;
+    }
+  </style>
+  <title>상품 목록</title>
+</head>
+<body class="container-fluid">
+<div class="row justify-content-center m-4">
+  <h1 class="text-center">Grids & Circle</h1>
+</div>
+<div class="card">
+  <div class="row">
+    <div class="col-md-8 mt-4 d-flex flex-column align-items-start p-3 pt-0">
+      <h5 class="flex-grow-0"><b>상품 목록</b></h5>
+      <ul class="list-group products" id="productList">
+        <!-- 상품 목록이 여기에 동적으로 추가됩니다 -->
+      </ul>
+    </div>
+    <div class="col-md-4 summary p-4">
+      <div>
+        <h5 class="m-0 p-0"><b>Summary</b></h5>
+      </div>
+      <hr>
+      <div id="summaryItems" class="row">
+        <!-- 상품 요약이 여기에 동적으로 추가됩니다 -->
+      </div>
+      <form id="orderForm">
+        <div class="mb-3">
+          <label for="email" class="form-label">이메일</label>
+          <input type="email" class="form-control mb-1" id="email">
+        </div>
+        <div class="mb-3">
+          <label for="address" class="form-label">주소</label>
+          <input type="text" class="form-control mb-1" id="address">
+        </div>
+        <div class="mb-3">
+          <label for="postcode" class="form-label">우편번호</label>
+          <input type="text" class="form-control" id="postcode">
+        </div>
+        <div>당일 오후 2시 이후의 주문은 다음날 배송을 시작합니다.</div>
+      </form>
+      <div class="row pt-2 pb-2 border-top">
+        <h5 class="col">총금액</h5>
+        <h5 class="col text-end" id="totalAmount">0원</h5>
+      </div>
+      <button class="btn btn-dark col-12" id="checkoutButton">결제하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript to dynamically load products -->
+<script>
+  let productMap = new Map();
+
+  async function loadProducts() {
+    try {
+      const response = await fetch('/api/v1/products');
+      const products = await response.json();
+
+      const productList = document.getElementById('productList');
+      const summaryItems = document.getElementById('summaryItems');
+      let totalAmount = 0;
+
+      productList.innerHTML = ''; // Clear existing products
+      summaryItems.innerHTML = ''; // Clear existing summary items
+
+      products.forEach(product => {
+        // Create product list item
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item d-flex mt-3';
+        listItem.innerHTML = `
+        <div class="col-2"><img class="img-fluid" src="https://i.imgur.com/HKOFQYa.jpeg" alt=""></div>
+        <div class="col">
+          <div class="row text-muted">${product.category}</div>
+          <div class="row">${product.productName}</div>
+        </div>
+        <div class="col text-center price">${product.price}원</div>
+        <div class="col text-end action">
+          <a class="btn btn-small btn-outline-dark" href="#" data-product-id="${product.productId}" data-product-name="${product.productName}" data-product-price="${product.price}" onclick="addToSummary(event)">추가</a>
+        </div>
+      `;
+        productList.appendChild(listItem);
+      });
+
+      updateSummary();
+    } catch (error) {
+      console.error('Error loading products:', error);
+    }
+  }
+
+  function addToSummary(event) {
+    event.preventDefault();
+
+    const button = event.currentTarget;
+    const productId = button.getAttribute('data-product-id');
+    const productName = button.getAttribute('data-product-name');
+    const productPrice = parseInt(button.getAttribute('data-product-price'));
+
+    if (!productMap.has(productId)) {
+      productMap.set(productId, { productId: productId, name: productName, price: productPrice, quantity: 1 });
+    } else {
+      const product = productMap.get(productId);
+      product.quantity += 1;
+    }
+
+    updateSummary();
+  }
+
+  function updateSummary() {
+    const summaryItems = document.getElementById('summaryItems');
+    const totalAmountElement = document.getElementById('totalAmount');
+
+    summaryItems.innerHTML = ''; // Clear existing summary items
+
+    let totalAmount = 0;
+
+    productMap.forEach((product) => {
+      const summaryItem = document.createElement('div');
+      summaryItem.className = 'row';
+      summaryItem.innerHTML = `
+      <h6 class="p-0">${product.name} <span class="badge bg-dark">${product.quantity}개</span></h6>
+    `;
+      summaryItems.appendChild(summaryItem);
+
+      totalAmount += product.price * product.quantity;
+    });
+
+    totalAmountElement.textContent = `${totalAmount}원`;
+  }
+
+  async function handleSubmit() {
+    const email = document.getElementById('email').value;
+    const address = document.getElementById('address').value;
+    const postcode = document.getElementById('postcode').value;
+
+    // Prepare the order data
+    const orderItems = Array.from(productMap.values()).map(product => ({
+      productId: product.productId, // Ensure the key is productId
+      quantity: product.quantity
+    }));
+
+    const orderData = {
+      email,
+      address,
+      postcode,
+      orderItems
+    };
+
+    try {
+      const response = await fetch('/api/v1/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      if (response.ok) {
+        alert('정상적으로 주문이 완료되었습니다.');
+        productMap.clear(); // Clear the cart
+        updateSummary(); // Update the summary to reflect the cleared cart
+        document.getElementById('orderForm').reset(); // Reset the form
+      } else {
+        const errorResponse = await response.json();
+        alert(`주문 처리에 실패했습니다: ${errorResponse.message}`);
+      }
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      alert('주문 처리 중 오류가 발생했습니다.');
+    }
+  }
+
+  // Load products when the page loads
+  document.addEventListener('DOMContentLoaded', loadProducts);
+
+  // Add event listener for the checkout button
+  document.getElementById('checkoutButton').addEventListener('click', handleSubmit);
+</script>
+</body>
+</html>

@@ -31,14 +31,10 @@ public class CouponMapping {
 
     private boolean used;
 
-    @Column(name = "expiration_date", nullable = false)
-    private LocalDateTime expirationDate;
-
     @Builder
-    public CouponMapping(User user, Coupon coupon, LocalDateTime expirationDate) {
+    public CouponMapping(User user, Coupon coupon) {
         this.user = user;
         this.coupon = coupon;
         this.used = false;
-        this.expirationDate = expirationDate;
     }
 }

@@ -19,7 +19,8 @@ public enum ExceptionCode {
 
 
   // COUPON ERROR
-  NOT_FOUND_COUPON(404, "존재하지 않는 쿠폰입니다.");
+  NOT_FOUND_COUPON(404, "존재하지 않는 쿠폰입니다."),
+  EXIST_COUPON(400, "이미 발급한 쿠폰 입니다.");
 
 
   private final int code;

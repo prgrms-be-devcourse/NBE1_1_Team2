@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static org.prgrms.coffee_order_be.common.exception.ExceptionCode.EXIST_COUPON;
 import static org.prgrms.coffee_order_be.common.exception.ExceptionCode.NOT_FOUND_COUPON;
 
 @Service
@@ -39,6 +40,10 @@ public class CouponService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(); // 추후 채울 예정
+
+        if(couponMappingRepository.existsByUserAndCoupon(user, coupon)){
+            throw new BusinessLogicException(EXIST_COUPON);
+        }
 
         CouponMapping couponMapping = new CouponMapping(user, coupon);
 

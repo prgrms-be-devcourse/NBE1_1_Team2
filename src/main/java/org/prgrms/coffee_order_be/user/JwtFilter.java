@@ -10,9 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
@@ -26,22 +23,29 @@ public class JwtFilter extends OncePerRequestFilter {
         String method = request.getMethod();
         String requestURI = request.getRequestURI();
 
-        if (token != null && jwtProvider.validateToken(token)) {
-            Claims claims = jwtProvider.parseClaims(token);
-            String role = claims.get("role", String.class);
-
-            if (isUserUrl(requestURI, method) && "user".equals(role)) {
-                filterChain.doFilter(request, response);
-            } else if (isAdminUrl(requestURI, method) && "admin".equals(role)) {
-                filterChain.doFilter(request, response);
-            } else {
+        if (isUserUrl(requestURI, method)) {
+            if (token == null || !jwtProvider.validateToken(token)) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
                 return;
             }
-        } else {
-            if (isUserUrl(requestURI, method) || isAdminUrl(requestURI, method)) response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Token");
-            else filterChain.doFilter(request, response);
-        }
+            Claims claims = jwtProvider.parseClaims(token);
+            String role = claims.get("role", String.class);
+
+            if ("user".equals(role) || "admin".equals(role)) {
+                filterChain.doFilter(request, response);
+            }
+        } else if (isAdminUrl(requestURI, method)) {
+            if (token == null || !jwtProvider.validateToken(token)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+                return;
+            }
+            Claims claims = jwtProvider.parseClaims(token);
+            String role = claims.get("role", String.class);
+
+            if ("admin".equals(role)) {
+                filterChain.doFilter(request, response);
+            }
+        } else filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {
@@ -68,6 +72,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 (requestURI.equals("/api/v1/products") && "POST".equalsIgnoreCase(method)) ||
                 (requestURI.matches("^/api/v1/products/\\d+$") && "PUT".equalsIgnoreCase(method)) ||
                 (requestURI.matches("^/api/v1/products/\\d+$") && "DELETE".equalsIgnoreCase(method)) ||
+                (requestURI.equals("/api/v1/coupon") && "POST".equalsIgnoreCase(method)) ||
                 (requestURI.equals("/api/v1/coupon") && "DELETE".equalsIgnoreCase(method)) ||
                 (requestURI.matches("^/api/v1/coupon/\\d+$") && "DELETE".equalsIgnoreCase(method))
                 ;

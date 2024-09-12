@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.prgrms.coffee_order_be.common.exception.BusinessLogicException;
 import org.prgrms.coffee_order_be.common.exception.ExceptionCode;
@@ -21,6 +24,7 @@ import org.prgrms.coffee_order_be.order.entity.OrderItem;
 import org.prgrms.coffee_order_be.order.repository.OrderRepository;
 import org.prgrms.coffee_order_be.product.entity.Product;
 import org.prgrms.coffee_order_be.product.repository.ProductRepository;
+import org.prgrms.coffee_order_be.user.JwtProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +35,8 @@ public class OrderService {
 
   private final OrderRepository orderRepository;
   private final ProductRepository productRepository;
+  private final HttpServletRequest request;
+  private final JwtProvider jwtProvider;
 
   @Transactional
   public OrderResponseDto createOrder(OrderCreateDto createDto) {
@@ -71,6 +77,13 @@ public class OrderService {
   public OrderResponseDto updateOrder(UUID orderId, OrderUpdateDto updateDto) {
     Order findOrder = getOrderById(orderId);
 
+    String token = request.getHeader("Authorization");
+    String loginEmail = (String) jwtProvider.parseClaims(token).get("email");
+
+    if (!loginEmail.equals(findOrder.getEmail())) {
+      throw new RuntimeException("본인의 주문만 수정할 수 있습니다.");
+    }
+
     if (!findOrder.isUpdatable())
       throw new BusinessLogicException(CANNOT_UPDATE_ORDER);
 
@@ -81,6 +94,13 @@ public class OrderService {
 
   public void deleteOrder(UUID orderId) {
     Order findOrder = getOrderById(orderId);
+
+    String token = request.getHeader("Authorization");
+    String loginEmail = (String) jwtProvider.parseClaims(token).get("email");
+
+    if (!loginEmail.equals(findOrder.getEmail())) {
+      throw new RuntimeException("본인의 주문만 삭제할 수 있습니다.");
+    }
 
     if (!findOrder.isDeletable())
       throw new BusinessLogicException(CANNOT_DELETE_ORDER);

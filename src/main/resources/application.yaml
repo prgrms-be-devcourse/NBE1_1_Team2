@@ -21,3 +21,9 @@ logging:
     org.hibernate.SQL: trace
     org.hibernate.type.descriptor: trace
     root: info
+
+jwt:
+  secret: ${JWT_SECRET}
+
+admin:
+  password: ${ADMIN_PASSWORD}

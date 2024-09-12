@@ -57,7 +57,7 @@
 
       if (response.ok) {
         alert('상품 등록 성공');
-        window.location.href = '/products';
+        window.location.href = '/admin/products';
       } else {
         const errorResponse = await response.json();
         const errorMessage = errorResponse.message || '상품 등록 실패';

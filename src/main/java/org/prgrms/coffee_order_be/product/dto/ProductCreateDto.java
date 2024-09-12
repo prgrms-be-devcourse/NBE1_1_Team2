@@ -19,12 +19,15 @@ public class ProductCreateDto {
   private Long price;
   @NotBlank
   private String description;
+  @NotBlank
+  private int quantity;
 
-  public ProductCreateDto(String productName, String category, Long price, String description) {
+  public ProductCreateDto(String productName, String category, Long price, String description, int quantity) {
     this.productName = productName;
     this.category = category;
     this.price = price;
     this.description = description;
+    this.quantity = quantity;
   }
 
   public Product toEntity() {
@@ -33,6 +36,7 @@ public class ProductCreateDto {
         .category(this.getCategory())
         .price(this.getPrice())
         .description(this.getDescription())
+            .quantity(this.getQuantity())
         .build();
   }
 }

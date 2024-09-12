@@ -36,21 +36,26 @@ public class Product extends Timestamped {
   @Column(name = "description", length = 500)
   private String description;
 
+  @Column(name = "quantity", nullable = false)
+  private Integer quantity;
+
   @Builder
-  public Product(String productName, String category, Long price, String description) {
+  public Product(String productName, String category, Long price, String description, int quantity) {
     this.productName = productName;
     this.category = category;
     this.price = price;
     this.description = description;
+    this.quantity = quantity;
   }
 
   public Product(UUID productId, String productName, String category, Long price,
-      String description) {
+      String description, int quantity) {
     this.productId = productId;
     this.productName = productName;
     this.category = category;
     this.price = price;
     this.description = description;
+    this.quantity = quantity;
   }
 
   public void updateFromDto(ProductUpdateDto updateDto) {

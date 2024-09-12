@@ -16,11 +16,12 @@ public class ProductResponseDto {
   private String category;
   private Long price;
   private String description;
+  private int quantity;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
   public ProductResponseDto(UUID productId, String productName, String category, Long price,
-      String description, LocalDateTime createdAt, LocalDateTime updatedAt) {
+      String description, int quantity, LocalDateTime createdAt, LocalDateTime updatedAt) {
     this.productId = productId;
     this.productName = productName;
     this.category = category;
@@ -28,6 +29,7 @@ public class ProductResponseDto {
     this.description = description;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+    this.quantity = quantity;
   }
 
   public static ProductResponseDto from(Product product) {
@@ -37,6 +39,7 @@ public class ProductResponseDto {
         product.getCategory(),
         product.getPrice(),
         product.getDescription(),
+        product.getQuantity(),
         product.getCreatedAt(),
         product.getUpdatedAt()
     );

@@ -53,14 +53,23 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private boolean isUserUrl(String requestURI, String method) {
-        return requestURI.equals("/api/v1/orders") && method.equalsIgnoreCase("POST") ||
-                requestURI.matches("^/api/v1/orders/\\d+$") && "PUT".equalsIgnoreCase(method) ||
-                requestURI.matches("^/api/v1/orders/\\d+$") && "DELETE".equalsIgnoreCase(method) ||
-                requestURI.equals("/orders") && method.equalsIgnoreCase("GET")
+        return (requestURI.equals("/api/v1/orders") && "POST".equalsIgnoreCase(method)) ||
+                (requestURI.matches("^/api/v1/orders/\\d+$") && "PUT".equalsIgnoreCase(method)) ||
+                (requestURI.matches("^/api/v1/orders/\\d+$") && "DELETE".equalsIgnoreCase(method)) ||
+                (requestURI.equals("/orders") && "GET".equalsIgnoreCase(method)) ||
+                (requestURI.startsWith("/api/v1/coupon/issue")) ||
+                (requestURI.startsWith("/api/v1/coupon/use")) ||
+                (requestURI.startsWith("/api/v1/coupon/cancel"))
                 ;
     }
 
     private boolean isAdminUrl(String requestURI, String method) {
-        return requestURI.startsWith("/admin");
+        return (requestURI.startsWith("/admin")) ||
+                (requestURI.equals("/api/v1/products") && "POST".equalsIgnoreCase(method)) ||
+                (requestURI.matches("^/api/v1/products/\\d+$") && "PUT".equalsIgnoreCase(method)) ||
+                (requestURI.matches("^/api/v1/products/\\d+$") && "DELETE".equalsIgnoreCase(method)) ||
+                (requestURI.equals("/api/v1/coupon") && "DELETE".equalsIgnoreCase(method)) ||
+                (requestURI.matches("^/api/v1/coupon/\\d+$") && "DELETE".equalsIgnoreCase(method))
+                ;
     }
 }

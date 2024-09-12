@@ -2,6 +2,7 @@ package org.prgrms.coffee_order_be.product.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -25,7 +26,8 @@ public class ProductCreateDto {
   @Schema(description = "상품 설명", example = "산미가 더해진 커피원두..어쩌고")
   @NotBlank
   private String description;
-  @NotBlank
+  @Schema(description = "상품 수량", example = "100")
+  @NotNull
   private int quantity;
 
   public ProductCreateDto(String productName, String category, Long price, String description, int quantity) {

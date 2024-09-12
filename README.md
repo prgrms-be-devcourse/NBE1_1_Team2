@@ -58,7 +58,7 @@ Spring Boot를 기반으로 한 커피 주문 시스템으로 제품 관리, 주
         - 14시에 주문 완료 상태의 주문을 배송 시작 상태로 변경한다.
         - 혹은 별도 API 사양 파서 구현
 
-## 📝 추가 시나리오
+## 💡 추가 시나리오
  
 4. 쿠폰 기능
     - [x] 쿠폰 생성 기능 (관리자)
@@ -84,14 +84,14 @@ Spring Boot를 기반으로 한 커피 주문 시스템으로 제품 관리, 주
         - 인증이 필요한 요청 전, JWT를 이용한 인가 처리가 필터에서 수행된다.
 
 
-## 📝 별도 추가 기능
+## 💡 별도 추가 기능
 - Mybatis + view (별도 Branch)
     - [mybatis + view branch 이동](https://github.com/prgrms-be-devcourse/NBE1_1_Team2/tree/mybatis)
 - 쿼리 최적화
     - [link](https://equal-mountain-a78.notion.site/318aee943fb1410f8f40e1fd3e2b4931?pvs=4)
 
 
-## 📝 구현하지 못한 기능
+## 🥹 구현하지 못한 기능
 - 인증 인가를 반영한 VIEW 페이지
   - REST API 통해서만 구현된 상태
 - 주문시 쿠폰과의 비지니스로직 통합

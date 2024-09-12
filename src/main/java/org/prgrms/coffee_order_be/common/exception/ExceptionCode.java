@@ -17,12 +17,14 @@ public enum ExceptionCode {
   CANNOT_UPDATE_ORDER(400, "업데이트할 수 없는 주문입니다. (배송 시작)"),
   CANNOT_DELETE_ORDER(400, "삭제할 수 없는 주문입니다. (배송 시작)"),
 
-
   // COUPON ERROR
   NOT_FOUND_COUPON(404, "존재하지 않는 쿠폰입니다."),
   EXIST_COUPON(400, "이미 발급한 쿠폰 입니다."),
   ALREADY_USED_COUPON(400, "이미 사용한 쿠폰 입니다."),
-  ALREADY_CANCELED_COUPON(400, "이미 취소한 쿠폰 입니다.");
+  ALREADY_CANCELED_COUPON(400, "이미 취소한 쿠폰 입니다."),
+
+  // USER ERROR
+  NOT_FOUND_USER(404, "존재하지 않는 회원입니다.");
 
 
 

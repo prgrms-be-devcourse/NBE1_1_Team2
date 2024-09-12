@@ -49,7 +49,7 @@ public class CouponService {
                 .orElseThrow(() -> new BusinessLogicException(NOT_FOUND_COUPON));
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(); // 추후 채울 예정
+                .orElseThrow(() -> new BusinessLogicException(NOT_FOUND_USER));
 
         if(couponMappingRepository.existsByUserAndCoupon(user, coupon)){
             throw new BusinessLogicException(EXIST_COUPON);

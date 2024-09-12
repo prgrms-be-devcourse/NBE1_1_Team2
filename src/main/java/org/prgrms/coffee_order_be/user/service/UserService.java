@@ -1,6 +1,14 @@
 package org.prgrms.coffee_order_be.user.service;
 
+import static org.prgrms.coffee_order_be.common.exception.ExceptionCode.NOT_FOUND_USER;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.prgrms.coffee_order_be.common.exception.BusinessLogicException;
 import org.prgrms.coffee_order_be.user.JwtProvider;
 import org.prgrms.coffee_order_be.user.dto.TokenDto;
 import org.prgrms.coffee_order_be.user.dto.UserCreateRequestDto;
@@ -10,62 +18,63 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
 
-    @Value("${admin.password}")
-    private String adminPassword;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtProvider jwtProvider;
 
-    public User createUser(UserCreateRequestDto userCreateRequestDto) {
-        if (userRepository.existsByEmail(userCreateRequestDto.getEmail())) {
-            return null;
-        }
+  @Value("${admin.password}")
+  private String adminPassword;
 
-        User user = User.builder()
-                .email(userCreateRequestDto.getEmail())
-                .password(passwordEncoder.encode(userCreateRequestDto.getPassword()))
-                .build();
-        return userRepository.save(user);
+  public User createUser(UserCreateRequestDto userCreateRequestDto) {
+    if (userRepository.existsByEmail(userCreateRequestDto.getEmail())) {
+      return null;
     }
 
-    public TokenDto authenticateUser(UserCreateRequestDto userCreateRequestDto) {
-        User findUser = userRepository.findByEmail(userCreateRequestDto.getEmail());
+    User user = User.builder()
+        .email(userCreateRequestDto.getEmail())
+        .password(passwordEncoder.encode(userCreateRequestDto.getPassword()))
+        .build();
+    return userRepository.save(user);
+  }
 
-        if (passwordEncoder.matches(userCreateRequestDto.getPassword(), findUser.getPassword())) {
-            Map<String, Object> claims = new HashMap<>();
-            claims.put("email", userCreateRequestDto.getEmail());
-            claims.put("role", "user");
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
-            calendar.add(Calendar.DATE, 1);
+  public TokenDto authenticateUser(UserCreateRequestDto userCreateRequestDto) {
+    User findUser = userRepository.findByEmail(userCreateRequestDto.getEmail())
+        .orElseThrow(() -> new BusinessLogicException(NOT_FOUND_USER));
 
-            Date tomorrow = calendar.getTime();
-            String token = jwtProvider.createToken(claims, tomorrow);
+    if (passwordEncoder.matches(userCreateRequestDto.getPassword(), findUser.getPassword())) {
+      Map<String, Object> claims = new HashMap<>();
+      claims.put("email", userCreateRequestDto.getEmail());
+      claims.put("role", "user");
+      Calendar calendar = Calendar.getInstance();
+      calendar.setTime(new Date());
+      calendar.add(Calendar.DATE, 1);
 
-            return new TokenDto(token);
-        }
-        return null;
+      Date tomorrow = calendar.getTime();
+      String token = jwtProvider.createToken(claims, tomorrow);
+
+      return new TokenDto(token);
     }
+    return null;
+  }
 
-    public TokenDto authenticateAdmin(UserCreateRequestDto userCreateRequestDto) {
-        if (Objects.equals(userCreateRequestDto.getEmail(), "admin") && Objects.equals(userCreateRequestDto.getPassword(), adminPassword)) {
-            Map<String, Object> claims = new HashMap<>();
-            claims.put("role", "admin");
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
-            calendar.add(Calendar.DATE, 1);
+  public TokenDto authenticateAdmin(UserCreateRequestDto userCreateRequestDto) {
+    if (Objects.equals(userCreateRequestDto.getEmail(), "admin") && Objects.equals(
+        userCreateRequestDto.getPassword(), adminPassword)) {
+      Map<String, Object> claims = new HashMap<>();
+      claims.put("role", "admin");
+      Calendar calendar = Calendar.getInstance();
+      calendar.setTime(new Date());
+      calendar.add(Calendar.DATE, 1);
 
-            Date tomorrow = calendar.getTime();
-            String token = jwtProvider.createToken(claims, tomorrow);
+      Date tomorrow = calendar.getTime();
+      String token = jwtProvider.createToken(claims, tomorrow);
 
-            return new TokenDto(token);
-        }
-        return null;
+      return new TokenDto(token);
     }
+    return null;
+  }
 }

@@ -14,9 +14,16 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        default_batch_fetch_size: 100
 
 logging:
   level:
     org.hibernate.SQL: trace
     org.hibernate.type.descriptor: trace
     root: info
+
+jwt:
+  secret: ${JWT_SECRET}
+
+admin:
+  password: ${ADMIN_PASSWORD}

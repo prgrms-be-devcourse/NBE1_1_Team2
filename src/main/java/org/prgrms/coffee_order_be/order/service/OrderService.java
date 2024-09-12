@@ -5,7 +5,9 @@ import static org.prgrms.coffee_order_be.common.exception.ExceptionCode.CANNOT_U
 import static org.prgrms.coffee_order_be.common.exception.ExceptionCode.NOT_FOUND_ORDER;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.prgrms.coffee_order_be.common.exception.BusinessLogicException;
@@ -32,23 +34,30 @@ public class OrderService {
 
   @Transactional
   public OrderResponseDto createOrder(OrderCreateDto createDto) {
+    List<UUID> productIds = createDto.getOrderItems().stream()
+            .map(OrderItemCreateDto::getProductId)
+            .collect(Collectors.toList());
 
-    List<OrderItem> orderItems = convertToOrderItems(createDto.getOrderItems());
+    Map<UUID, Product> productMap = productRepository.findAllById(productIds).stream()
+            .collect(Collectors.toMap(Product::getProductId, Function.identity()));
+
+    List<OrderItem> orderItems = convertToOrderItems(createDto.getOrderItems(), productMap);
 
     Order order = createDto.toEntity(orderItems);
+
     orderRepository.save(order);
 
     return OrderResponseDto.from(order);
   }
 
   public List<OrderResponseDto> getOrders() {
-    List<Order> orders = orderRepository.findAll();
+    List<Order> orders = orderRepository.findAllOrdersWithProducts();
 
     return orders.stream().map(OrderResponseDto::from).collect(Collectors.toList());
   }
 
   public List<OrderResponseDto> getOrdersByEmail(String email) {
-    List<Order> orders = orderRepository.findByEmail(email);
+    List<Order> orders = orderRepository.findByEmailWithDetails(email);
     return orders.stream().map(OrderResponseDto::from).collect(Collectors.toList());
   }
 
@@ -85,16 +94,18 @@ public class OrderService {
     );
   }
 
-  private List<OrderItem> convertToOrderItems(List<OrderItemCreateDto> orderItemsDto) {
+  private List<OrderItem> convertToOrderItems(List<OrderItemCreateDto> orderItemsDto, Map<UUID, Product> productMap) {
     return orderItemsDto.stream()
-        .map(this::mapToOrderItem)
-        .collect(Collectors.toList());
+            .map(dto -> mapToOrderItem(dto, productMap))
+            .collect(Collectors.toList());
   }
 
-  private OrderItem mapToOrderItem(OrderItemCreateDto dto) {
-    Product findProduct = productRepository.findById(dto.getProductId())
-        .orElseThrow(() -> new BusinessLogicException(ExceptionCode.NOT_FOUND_PRODUCT));
+  private OrderItem mapToOrderItem(OrderItemCreateDto dto, Map<UUID, Product> productMap) {
+    Product product = productMap.get(dto.getProductId());
+    if (product == null) {
+      throw new BusinessLogicException(ExceptionCode.NOT_FOUND_PRODUCT);
+    }
 
-    return dto.toEntity(findProduct);
+    return dto.toEntity(product);
   }
 }

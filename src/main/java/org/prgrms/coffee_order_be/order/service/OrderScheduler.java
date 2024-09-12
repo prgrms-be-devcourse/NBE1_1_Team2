@@ -23,10 +23,9 @@ public class OrderScheduler {
     LocalDateTime today2pm = now.withHour(14).withMinute(0).withSecond(0).withNano(0);
     LocalDateTime yesterday2pm = today2pm.minusDays(1);
 
-    List<Order> orders = orderRepository.findAllByStatusAndDateRange(
-        OrderStatus.ORDER_COMPLETED, yesterday2pm, today2pm
+    int updatedCount = orderRepository.updateOrderStatusInDateRange(
+            OrderStatus.SHIPPING_STARTED, OrderStatus.ORDER_COMPLETED, yesterday2pm, today2pm, now
     );
 
-    orders.forEach(Order::startShipping);
   }
 }

@@ -14,7 +14,7 @@ import org.prgrms.coffee_order_be.product.entity.Product;
 @Schema(description = "상품 응답 DTO")
 public class ProductResponseDto {
 
-  @Schema(description = "상품 ID")
+  @Schema(description = "상품 ID", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
   private UUID productId;
   @Schema(description = "상품 이름", example = "Ethiopia sidamo")
   private String productName;
@@ -24,9 +24,9 @@ public class ProductResponseDto {
   private Long price;
   @Schema(description = "상품 설명", example = "산미가 더해진 커피원두..어쩌고")
   private String description;
-  @Schema(description = "상품 생성 시간")
+  @Schema(description = "상품 생성 시간", example = "2024-09-12T00:05:23.818Z" )
   private LocalDateTime createdAt;
-  @Schema(description = "상품 수정 시간")
+  @Schema(description = "상품 수정 시간", example = "2024-09-12T00:05:23.818Z")
   private LocalDateTime updatedAt;
 
   public ProductResponseDto(UUID productId, String productName, String category, Long price,

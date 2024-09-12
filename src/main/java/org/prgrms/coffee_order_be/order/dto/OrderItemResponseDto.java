@@ -9,7 +9,7 @@ import org.prgrms.coffee_order_be.order.entity.OrderItem;
 @Getter
 @Schema(description = "주문 항목 응답 DTO")
 public class OrderItemResponseDto {
-  @Schema(description = "상품 ID")
+  @Schema(description = "상품 ID", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6" )
   private final UUID productId;
   @Schema(description = "상품명", example = "Ethiopia sidamo")
   private final String productName;

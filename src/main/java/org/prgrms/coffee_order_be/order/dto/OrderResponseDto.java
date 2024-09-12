@@ -13,7 +13,7 @@ import org.prgrms.coffee_order_be.order.entity.OrderStatus;
 @Schema(description = "주문 응답 DTO")
 public class OrderResponseDto {
 
-  @Schema(description = "주문 ID")
+  @Schema(description = "주문 ID", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
   private final UUID orderId;
   @Schema(description = "이메일", example = "hello123@mail.com")
   private final String email;

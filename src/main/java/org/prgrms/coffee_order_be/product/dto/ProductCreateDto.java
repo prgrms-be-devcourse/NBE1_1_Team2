@@ -25,12 +25,15 @@ public class ProductCreateDto {
   @Schema(description = "상품 설명", example = "산미가 더해진 커피원두..어쩌고")
   @NotBlank
   private String description;
+  @NotBlank
+  private int quantity;
 
-  public ProductCreateDto(String productName, String category, Long price, String description) {
+  public ProductCreateDto(String productName, String category, Long price, String description, int quantity) {
     this.productName = productName;
     this.category = category;
     this.price = price;
     this.description = description;
+    this.quantity = quantity;
   }
 
   public Product toEntity() {
@@ -39,6 +42,7 @@ public class ProductCreateDto {
         .category(this.getCategory())
         .price(this.getPrice())
         .description(this.getDescription())
+            .quantity(this.getQuantity())
         .build();
   }
 }

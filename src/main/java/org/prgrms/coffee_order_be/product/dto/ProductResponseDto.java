@@ -24,13 +24,15 @@ public class ProductResponseDto {
   private Long price;
   @Schema(description = "상품 설명", example = "산미가 더해진 커피원두..어쩌고")
   private String description;
+  @Schema(description = "상품 수량", example = "10")
+  private int quantity;
   @Schema(description = "상품 생성 시간", example = "2024-09-12T00:05:23.818Z" )
   private LocalDateTime createdAt;
   @Schema(description = "상품 수정 시간", example = "2024-09-12T00:05:23.818Z")
   private LocalDateTime updatedAt;
 
   public ProductResponseDto(UUID productId, String productName, String category, Long price,
-      String description, LocalDateTime createdAt, LocalDateTime updatedAt) {
+      String description, int quantity, LocalDateTime createdAt, LocalDateTime updatedAt) {
     this.productId = productId;
     this.productName = productName;
     this.category = category;
@@ -38,6 +40,7 @@ public class ProductResponseDto {
     this.description = description;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+    this.quantity = quantity;
   }
 
   public static ProductResponseDto from(Product product) {
@@ -47,6 +50,7 @@ public class ProductResponseDto {
         product.getCategory(),
         product.getPrice(),
         product.getDescription(),
+        product.getQuantity(),
         product.getCreatedAt(),
         product.getUpdatedAt()
     );
